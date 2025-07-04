@@ -741,7 +741,7 @@ const LyvoHealthApp = () => {
     });
 
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto">
         {/* Header mit Lyvo Health Branding */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
