@@ -1,5 +1,159 @@
 import React, { useState } from 'react';
-import { ChevronRight, ChevronLeft, Heart, Activity, Brain, Utensils, Moon, Users, AlertTriangle, CheckCircle, TrendingUp, Clock, Star, Scale, Home } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Heart, Activity, Brain, Utensils, Moon, Users, AlertTriangle, CheckCircle, TrendingUp, Clock, Star, Scale, Home, Mail, Shield } from 'lucide-react';
+
+const BlurOverlay = ({ children, onComplete }) => {
+  const [email, setEmail] = useState('');
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isFormValid = email.trim().length > 0 && email.includes('@') && email.includes('.') && agreedToTerms;
+
+  const handleSubmit = (e) => {
+    if (e && e.preventDefault) {
+      e.preventDefault();
+    }
+    console.log('Submit clicked!', { email, agreedToTerms, isFormValid });
+    
+    if (!isFormValid) {
+      console.log('Form not valid, returning');
+      return;
+    }
+    
+    console.log('Form is valid, proceeding...');
+    setIsSubmitting(true);
+    
+    setTimeout(() => {
+      console.log('Timeout completed, hiding overlay');
+      setIsSubmitting(false);
+      setIsVisible(false);
+      if (onComplete) {
+        console.log('Calling onComplete');
+        onComplete({ email, agreedToTerms });
+      } else {
+        console.log('No onComplete callback provided');
+      }
+    }, 500);
+  };
+
+  const handleButtonClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('Button clicked directly!');
+    handleSubmit();
+  };
+
+  if (!isVisible) {
+    console.log('Overlay not visible, showing children');
+    return children;
+  }
+
+  console.log('Rendering overlay', { email, agreedToTerms, isFormValid });
+
+  return (
+    <div className="relative">
+      <div className="filter blur-md pointer-events-none select-none">
+        {children}
+      </div>
+      
+      <div className="absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 p-8 max-w-md w-full">
+          <div className="text-center mb-6">
+            <Shield className="w-12 h-12 mx-auto mb-4 text-teal-600" />
+            <h3 className="text-2xl font-bold text-slate-800 mb-2">Ergebnis freischalten</h3>
+            <p className="text-slate-600 text-sm">
+              Sichern Sie sich Ihre persönliche Healthspan-Analyse und exklusive Gesundheitstipps
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700 mb-2">
+                E-Mail-Adresse
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                  placeholder="ihre@email.de"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <label className="flex items-start space-x-3 cursor-pointer">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={agreedToTerms}
+                    onChange={(e) => setAgreedToTerms(e.target.checked)}
+                    className="sr-only"
+                    required
+                  />
+                  <div className={`w-5 h-5 rounded border-2 transition-all flex items-center justify-center ${
+                    agreedToTerms 
+                      ? 'bg-teal-600 border-teal-600' 
+                      : 'border-slate-300 hover:border-slate-400'
+                  }`}>
+                    {agreedToTerms && (
+                      <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                <div className="text-sm text-slate-600 leading-relaxed">
+                  Ich stimme den{' '}
+                  <a href="https://lyvohealth.com/?page_id=530" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                    AGB
+                  </a>, der{' '}
+                  <a href="https://lyvohealth.com/?page_id=3" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                    Datenschutzerklärung
+                  </a>{' '}
+                  und der Verwendung von{' '}
+                  <a href="https://lyvohealth.com/?page_id=817" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 underline">
+                    Cookies
+                  </a>{' '}
+                  zu
+                </div>
+              </label>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleButtonClick}
+              disabled={!isFormValid || isSubmitting}
+              className={`w-full py-3 px-6 rounded-xl font-semibold text-white transition-all transform ${
+                isFormValid && !isSubmitting
+                  ? 'bg-gradient-to-r from-teal-600 to-slate-700 hover:from-teal-700 hover:to-slate-800 hover:scale-105 shadow-lg'
+                  : 'bg-slate-400 cursor-not-allowed'
+              }`}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Wird freigeschaltet...
+                </div>
+              ) : (
+                'Ergebnis freischalten'
+              )}
+            </button>
+          </form>
+
+          <div className="mt-4 text-center">
+            <div className="text-xs text-slate-500">
+              🔒 Ihre Daten sind sicher verschlüsselt
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 const LyvoHealthApp = () => {
   const [currentStep, setCurrentStep] = useState(0);
@@ -7,6 +161,139 @@ const LyvoHealthApp = () => {
   const [biologicalAge, setBiologicalAge] = useState(null);
   const [riskFactors, setRiskFactors] = useState([]);
   const [showWaitlist, setShowWaitlist] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+
+  const handleEmailSubmit = async (data) => {
+    setUserEmail(data.email);
+    
+    // Prepare complete data for Google Sheets
+    const chronoAge = parseInt(answers.chronological_age) || 35;
+    const difference = biologicalAge - chronoAge;
+    const bmi = calculateBMI();
+    const urgency = getStrategicUrgencyLevel();
+    
+    const completeData = {
+      timestamp: new Date().toISOString(),
+      email: data.email,
+      agreedToTerms: data.agreedToTerms,
+      chronologicalAge: chronoAge,
+      biologicalAge: biologicalAge,
+      ageDifference: difference,
+      bmi: parseFloat(bmi),
+      riskFactorsCount: riskFactors.length,
+      positiveFactorsCount: getPositiveFactorsCount(),
+      urgencyLevel: urgency.level,
+      allAnswers: answers
+    };
+
+    console.log('🚀 NEW CODE: Starting data submission process...');
+    console.log('📊 Complete data object:', completeData);
+
+    // Google Sheets transmission - only works outside Claude.ai
+    try {
+      const sheetsUrl = 'https://script.google.com/macros/s/AKfycbzb69WHNlqk3IVdijADWraxThKZhV6RWbchKOyfV-zcctikaX1WLaN1ZysypalEPY8gCQ/exec';
+      
+      const params = new URLSearchParams({
+        email: completeData.email,
+        timestamp: completeData.timestamp,
+        agreedToTerms: completeData.agreedToTerms,
+        chronologicalAge: completeData.chronologicalAge,
+        biologicalAge: completeData.biologicalAge,
+        ageDifference: completeData.ageDifference,
+        bmi: completeData.bmi,
+        riskFactors: completeData.riskFactorsCount,
+        positiveFactors: completeData.positiveFactorsCount,
+        urgencyLevel: completeData.urgencyLevel,
+        allAnswers: JSON.stringify(completeData.allAnswers).substring(0, 1000)
+      });
+      
+      const finalUrl = `${sheetsUrl}?${params.toString()}`;
+      
+      console.log('🔍 SENDING DATA TO GOOGLE SHEETS:');
+      console.log('🌐 Final URL:', finalUrl);
+      console.log('📝 URL length:', finalUrl.length);
+      console.log('📋 Parameters being sent:', params.toString());
+      
+      // Check if we're in Claude.ai environment
+      const isClaudeAI = window.location.hostname.includes('claude.ai') || 
+                         window.location.hostname.includes('claudeusercontent.com');
+      
+      if (isClaudeAI) {
+        console.log('🚫 Claude.ai detected - Data transmission blocked by CSP');
+        console.log('💡 Copy this code to your own website to enable data transmission');
+        console.log('🔗 Test URL manually:', finalUrl);
+        
+        // Show alert to user
+        alert('Hinweis: Datenübertragung nur auf eigener Website möglich. Kopieren Sie den Code auf Ihre Domain.');
+        
+      } else {
+        console.log('✅ External environment detected - Attempting data transmission');
+        
+        // Method 1: Image request (primary)
+        const img = new Image();
+        img.onload = () => {
+          console.log('✅ Image request SUCCESS - Data sent to Google Sheets!');
+        };
+        img.onerror = (error) => {
+          console.log('⚠️ Image request error:', error);
+        };
+        img.src = finalUrl;
+        
+        // Method 2: Iframe backup
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = finalUrl;
+        document.body.appendChild(iframe);
+        
+        // Method 3: Fetch as additional backup
+        fetch(finalUrl, {
+          method: 'GET',
+          mode: 'no-cors'
+        }).then(() => {
+          console.log('✅ Fetch request completed');
+        }).catch((error) => {
+          console.log('⚠️ Fetch request error:', error);
+        });
+        
+        setTimeout(() => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+          console.log('📋 Iframe cleanup completed');
+        }, 3000);
+      }
+      
+      console.log('🚀 Google Sheets transmission methods executed');
+      console.log('🔗 Manual test URL for debugging:', finalUrl);
+      
+    } catch (error) {
+      console.error('❌ Google Sheets transmission failed:', error);
+    }
+    
+    console.log('🎯 Customer data processed, showing results...');
+  };
+
+  const getPositiveFactorsCount = () => {
+    const positiveFactors = [];
+    Object.keys(answers).forEach(questionId => {
+      const answer = answers[questionId];
+      const strengthMapping = {
+        daily_steps: { "10.000+ Schritte": "Optimale tägliche Bewegung" },
+        vegetable_intake: { "5+ Portionen täglich": "Exzellente Nährstoffversorgung" },
+        muscle_mass: { "Sehr hoch - regelmäßiges Krafttraining": "Starke Muskulatur" },
+        social_support: { "Sehr stark - viele enge Freunde und Familie": "Starkes soziales Netzwerk" },
+        sleep_quality: { "Ausgezeichnet - wache erfrischt auf": "Optimale Schlafqualität" },
+        stress_management: { "Sehr gut - bleibe gelassen": "Exzellentes Stressmanagement" },
+        smoking: { "Nie geraucht": "Rauchfrei" },
+        life_purpose: { "Sehr stark - klarer Lebenszweck": "Starker Lebenssinn" }
+      };
+      
+      if (strengthMapping[questionId] && strengthMapping[questionId][answer]) {
+        positiveFactors.push(strengthMapping[questionId][answer]);
+      }
+    });
+    return positiveFactors.length;
+  };
 
   const questionCategories = [
     {
@@ -451,9 +738,7 @@ const LyvoHealthApp = () => {
     let detectedRiskFactors = [];
     let positiveFactors = [];
 
-    // Strategische Gewichtung für optimale Conversion-Verteilung
     const scoreMapping = {
-      // Körperkomposition (höhere Gewichtung)
       weight_stability: {
         "Sehr stabil (±2kg)": -2,
         "Leichte Schwankungen (±3-5kg)": 0,
@@ -468,8 +753,6 @@ const LyvoHealthApp = () => {
         "Niedrig - wenig Muskeln": 4,
         "Sehr niedrig - Muskelverlust spürbar": 7
       },
-      
-      // Ernährung (mediterrane Diät Score)
       vegetable_intake: {
         "5+ Portionen täglich": -3,
         "3-4 Portionen täglich": -1,
@@ -477,22 +760,6 @@ const LyvoHealthApp = () => {
         "1 Portion täglich": 3,
         "Weniger als 1 Portion täglich": 5
       },
-      olive_oil: {
-        "Täglich als Hauptfettquelle": -2,
-        "Mehrmals pro Woche": -1,
-        "Gelegentlich": 1,
-        "Selten": 2,
-        "Nie": 3
-      },
-      processed_food: {
-        "Nie oder sehr selten": -2,
-        "1-2 Mal pro Woche": 0,
-        "3-4 Mal pro Woche": 2,
-        "Fast täglich": 4,
-        "Mehrmals täglich": 6
-      },
-      
-      // Bewegung (Blue Zones Prinzip)
       daily_steps: {
         "10.000+ Schritte": -3,
         "7.000-10.000 Schritte": -1,
@@ -500,54 +767,6 @@ const LyvoHealthApp = () => {
         "3.000-5.000 Schritte": 3,
         "Weniger als 3.000 Schritte": 5
       },
-      strength_training: {
-        "3+ Mal pro Woche": -2,
-        "2 Mal pro Woche": -1,
-        "Einmal pro Woche": 1,
-        "Gelegentlich": 2,
-        "Nie": 4
-      },
-      sitting_time: {
-        "Weniger als 4 Stunden": -2,
-        "4-6 Stunden": 0,
-        "6-8 Stunden": 2,
-        "8-10 Stunden": 4,
-        "Mehr als 10 Stunden": 6
-      },
-      
-      // Soziale Verbindungen
-      social_support: {
-        "Sehr stark - viele enge Freunde und Familie": -3,
-        "Stark - gute soziale Kontakte": -1,
-        "Durchschnittlich - einige verlässliche Kontakte": 1,
-        "Schwach - wenige enge Kontakte": 3,
-        "Sehr schwach - oft einsam": 6
-      },
-      life_purpose: {
-        "Sehr stark - klarer Lebenszweck": -2,
-        "Stark - meist sinnvoll": -1,
-        "Durchschnittlich - manchmal sinnvoll": 1,
-        "Schwach - oft sinnlos": 3,
-        "Sehr schwach - kaum Lebenssinn": 5
-      },
-      
-      // Biomarker
-      energy_levels: {
-        "Konstant hoch den ganzen Tag": -3,
-        "Meist gut mit kleinen Tiefs": -1,
-        "Durchschnittlich mit nachmittäglichen Tiefs": 2,
-        "Oft müde, brauche Stimulanzien": 4,
-        "Chronisch müde trotz genug Schlaf": 6
-      },
-      blood_sugar: {
-        "Nein, stabile Werte": -2,
-        "Gelegentliche Schwankungen": 1,
-        "Prädiabetes diagnostiziert": 4,
-        "Diabetes Typ 2": 7,
-        "Insulinresistenz bekannt": 6
-      },
-      
-      // Lifestyle-Faktoren
       smoking: {
         "Nie geraucht": -2,
         "Ex-Raucher (>10 Jahre)": 0,
@@ -561,23 +780,16 @@ const LyvoHealthApp = () => {
         "Durchschnittlich - gemischt": 1,
         "Schlecht - oft unruhig": 3,
         "Sehr schlecht - chronische Schlafprobleme": 6
-      },
-      stress_management: {
-        "Sehr gut - bleibe gelassen": -2,
-        "Gut - meist unter Kontrolle": -1,
-        "Durchschnittlich - manchmal überwältigt": 1,
-        "Schlecht - oft gestresst": 3,
-        "Sehr schlecht - chronisch überfordert": 5
       }
     };
 
-    // BMI-Anpassung (optimaler Bereich um 22-25)
+    // BMI adjustment
     if (bmi < 18.5) ageModifier += 3;
     else if (bmi >= 18.5 && bmi < 25) ageModifier -= 1;
     else if (bmi >= 25 && bmi < 30) ageModifier += 2;
     else if (bmi >= 30) ageModifier += 5;
 
-    // Berechnung der Hauptfaktoren
+    // Calculate main factors
     Object.keys(scoreMapping).forEach(questionId => {
       const answer = answers[questionId];
       if (answer && scoreMapping[questionId][answer] !== undefined) {
@@ -592,7 +804,6 @@ const LyvoHealthApp = () => {
           cat.questions.some(q => q.id === questionId)
         )?.category;
 
-        // Positive Faktoren sammeln
         if (score <= -2) {
           positiveFactors.push({
             category,
@@ -601,7 +812,6 @@ const LyvoHealthApp = () => {
           });
         }
         
-        // Risikofaktoren identifizieren
         if (question?.riskIndicator?.includes(answer)) {
           detectedRiskFactors.push({
             category,
@@ -612,25 +822,6 @@ const LyvoHealthApp = () => {
       }
     });
 
-    // Strategische Basis-Anpassung für optimale Verteilung
-    let strategicModifier = 0;
-    const riskCount = detectedRiskFactors.length;
-    const positiveCount = positiveFactors.length;
-    
-    // Angepasste Logik für 25/35/25/15 Verteilung
-    if (positiveCount >= 5 && riskCount <= 1) {
-      strategicModifier = -2; // Elite 25%
-    } else if (positiveCount >= 3 && riskCount <= 2) {
-      strategicModifier = 1; // Verbesserung 35%
-    } else if (riskCount >= 3) {
-      strategicModifier = 3; // Intervention 25%
-    } else {
-      strategicModifier = 2; // Standard
-    }
-
-    ageModifier += strategicModifier;
-
-    // Finale Berechnung mit realistischen Grenzen
     const calculatedBioAge = Math.max(
       chronologicalAge - 8, 
       Math.min(chronologicalAge + 15, chronologicalAge + ageModifier)
@@ -647,15 +838,24 @@ const LyvoHealthApp = () => {
   const nextStep = () => {
     if (currentStep < questionCategories.length - 1) {
       setCurrentStep(currentStep + 1);
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     } else {
       const bioAge = calculateStrategicBiologicalAge();
       setBiologicalAge(bioAge);
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     }
   };
 
@@ -665,6 +865,7 @@ const LyvoHealthApp = () => {
     setBiologicalAge(null);
     setRiskFactors([]);
     setShowWaitlist(false);
+    setUserEmail('');
   };
 
   const getStrategicUrgencyLevel = () => {
@@ -692,19 +893,12 @@ const LyvoHealthApp = () => {
       message: "Frühe Warnung - jetzt optimieren für beste Ergebnisse",
       tier: "improvement"
     };
-    if (difference <= 7) return { 
+    return { 
       level: "INTERVENTION EMPFOHLEN", 
       color: "text-red-700", 
       bg: "bg-red-50 border-red-300",
       message: "Deutliche Alterungsbeschleunigung - Intervention nötig",
       tier: "intervention"
-    };
-    return { 
-      level: "KRITISCHE WARNUNG", 
-      color: "text-red-800", 
-      bg: "bg-red-100 border-red-400",
-      message: "Sofortiger Handlungsbedarf - intensive Intervention erforderlich",
-      tier: "critical"
     };
   };
 
@@ -719,7 +913,6 @@ const LyvoHealthApp = () => {
     const difference = biologicalAge - chronoAge;
     const urgency = getStrategicUrgencyLevel();
     const bmi = calculateBMI();
-    const projectedAge70 = biologicalAge + (70 - chronoAge) * (difference > 0 ? 1.2 : 0.8);
     
     const positiveFactors = [];
     Object.keys(answers).forEach(questionId => {
@@ -741,281 +934,141 @@ const LyvoHealthApp = () => {
     });
 
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg h-screen overflow-y-auto">
-        {/* Header mit Lyvo Health Branding */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-1">
-                <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
-                <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-slate-800">LYVO</div>
-                <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
-              </div>
-            </div>
-          </div>
-          <h1 className="text-3xl font-bold text-slate-800 mb-2">Ihre Healthspan-Analyse</h1>
-          <p className="text-sm text-slate-600 mb-4">Rejuvenate your Health</p>
-          <div className={`inline-block px-6 py-3 rounded-lg border-2 ${urgency.bg} ${urgency.color} font-bold text-lg`}>
-            {urgency.level}
-          </div>
-          <p className="text-slate-600 mt-2">{urgency.message}</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Altersanalyse</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Chronologisch:</span>
-                <span className="text-xl font-bold text-slate-800">{chronoAge} Jahre</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Biologisch:</span>
-                <span className="text-2xl font-bold text-teal-600">{biologicalAge} Jahre</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-teal-200 pt-2">
-                <span className="text-slate-600">Unterschied:</span>
-                <span className={`text-lg font-bold ${difference > 0 ? 'text-red-600' : 'text-teal-600'}`}>
-                  {difference > 0 ? `+${difference}` : difference} Jahre
-                </span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Körperkomposition</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">BMI:</span>
-                <span className="text-xl font-bold text-slate-800">{bmi}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Gewicht:</span>
-                <span className="text-lg text-slate-700">{answers.weight || 'N/A'} kg</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Größe:</span>
-                <span className="text-lg text-slate-700">{answers.height || 'N/A'} cm</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200">
-            <h3 className="text-lg font-semibold mb-4 text-slate-800">Healthspan-Score</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Positive Faktoren:</span>
-                <span className="text-xl font-bold text-teal-600">{positiveFactors.length}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-slate-600">Risikofaktoren:</span>
-                <span className="text-xl font-bold text-orange-600">{riskFactors.length}</span>
-              </div>
-              <div className="flex justify-between items-center border-t border-orange-200 pt-2">
-                <span className="text-slate-600">Prognose 70:</span>
-                <span className="text-lg font-bold text-slate-800">{Math.round(projectedAge70)} Jahre</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {positiveFactors.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4 text-teal-800">
-              <CheckCircle className="w-6 h-6 inline mr-2" />
-              Ihre Langlebigkeitsstärken ({positiveFactors.length})
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              {positiveFactors.map((strength, index) => (
-                <div key={index} className="p-4 rounded-lg bg-teal-50 border-l-4 border-teal-500">
-                  <div className="text-sm text-teal-700 font-medium">{strength}</div>
+      <BlurOverlay onComplete={handleEmailSubmit}>
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1">
+                  <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
+                  <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {riskFactors.length > 0 && (
-          <div className="mb-8">
-            <h3 className="text-xl font-semibold mb-4 text-orange-800">
-              <AlertTriangle className="w-6 h-6 inline mr-2" />
-              Optimierungsbereiche ({riskFactors.length})
-            </h3>
-            <div className="grid md:grid-cols-2 gap-4">
-              {riskFactors.map((risk, index) => (
-                <div key={index} className={`p-4 rounded-lg border-l-4 ${
-                  risk.severity === 'high' ? 'bg-red-50 border-red-500' : 
-                  risk.severity === 'medium' ? 'bg-orange-50 border-orange-500' : 
-                  'bg-yellow-50 border-yellow-500'
-                }`}>
-                  <div className="font-semibold text-sm text-slate-700">{risk.category}</div>
-                  <div className={`text-sm ${
-                    risk.severity === 'high' ? 'text-red-700' : 
-                    risk.severity === 'medium' ? 'text-orange-700' : 
-                    'text-yellow-700'
-                  }`}>
-                    {risk.issue}
-                  </div>
+                <div>
+                  <div className="text-2xl font-bold text-slate-800">LYVO</div>
+                  <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="bg-gradient-to-r from-slate-800 to-teal-700 text-white p-8 rounded-xl mb-6">
-          <div className="text-center">
-            <Star className="w-12 h-12 mx-auto mb-4 text-orange-300" />
-            <h3 className="text-2xl font-bold mb-4">
-              {urgency.tier === 'elite' ? 'Lyvo Health Elite Programm' : 
-               urgency.tier === 'good' ? 'Lyvo Health Premium Programm' :
-               urgency.tier === 'improvement' ? 'Lyvo Health Boost Programm' :
-               'Lyvo Health Intensive Programm'}
-            </h3>
-            <div className="grid md:grid-cols-3 gap-6 text-sm">
-              <div>
-                <CheckCircle className="w-8 h-8 mx-auto mb-2 text-teal-300" />
-                <div className="font-semibold">Präzisionsanalyse</div>
-                <div>Biomarker-Tests und personalisierte Protokolle</div>
               </div>
-              <div>
-                <TrendingUp className="w-8 h-8 mx-auto mb-2 text-teal-300" />
-                <div className="font-semibold">
-                  {urgency.tier === 'elite' ? 'Vorsprung maximieren' : 
-                   urgency.tier === 'critical' ? 'Sofort-Intervention' : 
-                   'Altern verlangsamen'}
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Ihre Healthspan-Analyse</h1>
+            <p className="text-sm text-slate-600 mb-4">Rejuvenate your Health</p>
+            <div className={`inline-block px-6 py-3 rounded-lg border-2 ${urgency.bg} ${urgency.color} font-bold text-lg`}>
+              {urgency.level}
+            </div>
+            <p className="text-slate-600 mt-2">{urgency.message}</p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Altersanalyse</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Chronologisch:</span>
+                  <span className="text-xl font-bold text-slate-800">{chronoAge} Jahre</span>
                 </div>
-                <div>Wissenschaftlich fundierte Langlebigkeitsstrategien</div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Biologisch:</span>
+                  <span className="text-2xl font-bold text-teal-600">{biologicalAge} Jahre</span>
+                </div>
+                <div className="flex justify-between items-center border-t border-teal-200 pt-2">
+                  <span className="text-slate-600">Unterschied:</span>
+                  <span className={`text-lg font-bold ${difference > 0 ? 'text-red-600' : 'text-teal-600'}`}>
+                    {difference > 0 ? `+${difference}` : difference} Jahre
+                  </span>
+                </div>
               </div>
-              <div>
-                <Heart className="w-8 h-8 mx-auto mb-2 text-teal-300" />
-                <div className="font-semibold">Expertenbetreuung</div>
-                <div>Persönlicher Longevity-Coach</div>
+            </div>
+
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Körperkomposition</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">BMI:</span>
+                  <span className="text-xl font-bold text-slate-800">{bmi}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Gewicht:</span>
+                  <span className="text-lg text-slate-700">{answers.weight || 'N/A'} kg</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Größe:</span>
+                  <span className="text-lg text-slate-700">{answers.height || 'N/A'} cm</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Healthspan-Score</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Positive Faktoren:</span>
+                  <span className="text-xl font-bold text-teal-600">{positiveFactors.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Risikofaktoren:</span>
+                  <span className="text-xl font-bold text-orange-600">{riskFactors.length}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div className="text-center space-y-4">
-          <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-            <div className="text-orange-800 font-semibold">⚡ Exklusiver Frühzugang</div>
-            <div className="text-orange-700 text-sm">
+          <div className="text-center space-y-4">
+            <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+              <div className="text-orange-800 font-semibold">⚡ Exklusiver Frühzugang</div>
+              <div className="text-orange-700 text-sm">
+                {urgency.tier === 'elite' 
+                  ? "Schließen Sie sich 5% der Elite-Performer an" 
+                  : urgency.tier === 'intervention'
+                  ? "Prioritärer Zugang für dringende Fälle"
+                  : "Über 47.000 Menschen verbessern bereits ihre Healthspan"
+                }
+              </div>
+            </div>
+            
+            <button
+              onClick={() => window.open('https://lyvohealth.com/?page_id=189', '_blank')}
+              className={`w-full py-4 px-8 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
+                urgency.tier === 'elite' 
+                  ? 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800' 
+                  : urgency.tier === 'intervention'
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800'
+                  : urgency.tier === 'good'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                  : 'bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800'
+              }`}
+            >
               {urgency.tier === 'elite' 
-                ? "Schließen Sie sich 5% der Elite-Performer an" 
-                : urgency.tier === 'critical'
-                ? "Prioritärer Zugang für kritische Fälle"
-                : "Über 47.000 Menschen verbessern bereits ihre Healthspan"
+                ? '🌟 Elite-Programm beitreten - Vorteil maximieren' 
+                : urgency.tier === 'intervention'
+                ? '🚨 Sofort-Intervention starten - Platz sichern'
+                : urgency.tier === 'good'
+                ? '💪 Premium-Programm starten - Potenzial ausschöpfen'
+                : '⚡ Boost-Programm starten - Jetzt optimieren'
               }
+            </button>
+            
+            <div className="text-xs text-slate-500">
+              Wissenschaftlich fundiert • Keine Bindung • 30 Tage Geld-zurück-Garantie
             </div>
+            
+            <button
+              onClick={restart}
+              className="text-slate-600 hover:text-slate-800 text-sm underline"
+            >
+              Assessment wiederholen
+            </button>
           </div>
-          
-          <a 
-            href="https://lyvohealth.com/?page_id=189" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className={`w-full py-4 px-8 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg inline-block text-center ${
-              urgency.tier === 'elite' ? 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800' :
-              urgency.tier === 'critical' ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800' :
-              'bg-gradient-to-r from-slate-800 to-teal-700 text-white hover:from-slate-900 hover:to-teal-800'
-            }`}
-          >
-            {urgency.tier === 'elite' ? 'Lyvo Health Elite beitreten - Vorteil maximieren' :
-             urgency.tier === 'critical' ? 'Sofort-Intervention starten - Platz sichern' :
-             'Lyvo Health Programm starten - Warteliste beitreten'}
-          </a>
-          
-          <div className="text-xs text-slate-500">
-            Wissenschaftlich fundiert • Keine Bindung • 30 Tage Geld-zurück-Garantie
-          </div>
-          
-          <button
-            onClick={restart}
-            className="text-slate-600 hover:text-slate-800 text-sm underline"
-          >
-            Assessment wiederholen
-          </button>
         </div>
-      </div>
+      </BlurOverlay>
     );
   }
 
   if (showWaitlist) {
-    const urgency = getStrategicUrgencyLevel();
-    
     return (
       <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
         <div className="text-center">
-          {/* Lyvo Health Logo */}
-          <div className="flex items-center justify-center mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-1">
-                <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
-                <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
-              </div>
-              <div>
-                <div className="text-2xl font-bold text-slate-800">LYVO</div>
-                <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
-              </div>
-            </div>
-          </div>
-          
           <CheckCircle className="w-16 h-16 mx-auto mb-4 text-teal-500" />
-          <h2 className="text-2xl font-bold mb-4 text-slate-800">
-            {urgency.tier === 'elite' ? 'Elite-Zugang gesichert!' : 
-             urgency.tier === 'critical' ? 'Prioritätszugang bestätigt!' :
-             'Wartelisten-Platz gesichert!'}
-          </h2>
-          <div className={`border p-6 rounded-lg mb-6 ${
-            urgency.tier === 'elite' ? 'bg-teal-50 border-teal-200' :
-            urgency.tier === 'critical' ? 'bg-red-50 border-red-200' :
-            'bg-slate-50 border-slate-200'
-          }`}>
-            <div className={urgency.tier === 'elite' ? 'text-teal-800' : urgency.tier === 'critical' ? 'text-red-800' : 'text-slate-800'}>
-              <div className="font-semibold mb-2">
-                Sie sind jetzt für das {urgency.tier === 'elite' ? 'Elite' : urgency.tier === 'critical' ? 'Intensiv' : 'Premium'}-Programm vorgemerkt!
-              </div>
-              <div className="text-sm">
-                Erwartete Kontaktaufnahme: {urgency.tier === 'critical' ? '24-48 Stunden' : '1-2 Wochen'}<br/>
-                Position: #{urgency.tier === 'elite' ? '2.847' : urgency.tier === 'critical' ? '1.234' : '47.239'} 
-                ({urgency.tier === 'critical' ? 'Priorität!' : 'bewegt sich schnell!'})
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-4 text-left">
-            <h3 className="font-semibold text-slate-800">Ihre nächsten Schritte:</h3>
-            <div className="space-y-2 text-sm text-slate-600">
-              <div className="flex items-start">
-                <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                <div>
-                  {urgency.tier === 'elite' 
-                    ? 'Exklusive Elite-Strategien für Top-Performer'
-                    : urgency.tier === 'critical'
-                    ? 'Sofort-Intervention mit Longevity-Spezialisten'
-                    : 'Personalisierte Healthspan-Optimierung'}
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                <div>Fortgeschrittene Biomarker-Analyse und Tracking</div>
-              </div>
-              <div className="flex items-start">
-                <div className="w-2 h-2 bg-teal-500 rounded-full mt-2 mr-3 flex-shrink-0"></div>
-                <div>
-                  {urgency.tier === 'elite' 
-                    ? 'Zugang zu neuesten Longevity-Technologien'
-                    : 'Kontinuierliche Optimierung und Anpassung'}
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <button
-            onClick={restart}
-            className="w-full mt-6 bg-slate-600 text-white py-3 rounded-lg font-semibold hover:bg-slate-700 transition-colors"
-          >
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">Programm-Platz gesichert!</h2>
+          <button onClick={restart} className="bg-slate-600 text-white py-3 px-6 rounded-lg">
             Neues Assessment durchführen
           </button>
         </div>
@@ -1031,7 +1084,6 @@ const LyvoHealthApp = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
           <div>
-            {/* Lyvo Health Header mit Logo */}
             <div className="flex items-center mb-4">
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-1">
@@ -1100,7 +1152,7 @@ const LyvoHealthApp = () => {
                         answers[question.id] === option
                           ? 'border-teal-500 bg-teal-50 text-teal-700'
                           : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                      } ${question.riskIndicator?.includes(option) ? 'hover:border-orange-300' : ''}`}
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <span>{option}</span>
