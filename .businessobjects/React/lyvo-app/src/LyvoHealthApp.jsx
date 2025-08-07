@@ -835,34 +835,27 @@ const LyvoHealthApp = () => {
     setAnswers(prev => ({ ...prev, [questionId]: value }));
   };
 
-  const scrollToHeader = () => {
-    setTimeout(() => {
-      const headerElement = document.getElementById('healthspan-header');
-      if (headerElement) {
-        const headerTop = headerElement.getBoundingClientRect().top + window.pageYOffset;
-        window.scrollTo({ 
-          top: headerTop - 20,
-          behavior: 'smooth' 
-        });
-      }
-    }, 50);
-  };
-
   const nextStep = () => {
     if (currentStep < questionCategories.length - 1) {
       setCurrentStep(currentStep + 1);
-      scrollToHeader();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     } else {
       const bioAge = calculateStrategicBiologicalAge();
       setBiologicalAge(bioAge);
-      scrollToHeader();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     }
   };
 
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
-      scrollToHeader();
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 50);
     }
   };
 
@@ -942,129 +935,127 @@ const LyvoHealthApp = () => {
 
     return (
       <BlurOverlay onComplete={handleEmailSubmit}>
-        <div className="w-full min-h-screen p-6 bg-white">
-          <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-8">
-              <div className="flex items-center justify-center mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
-                    <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-slate-800">LYVO</div>
-                    <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
-                  </div>
+        <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+          <div className="text-center mb-8">
+            <div className="flex items-center justify-center mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1">
+                  <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
+                  <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-slate-800">LYVO</div>
+                  <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
                 </div>
               </div>
-              <h1 className="text-3xl font-bold text-slate-800 mb-2">Ihre Healthspan-Analyse</h1>
-              <p className="text-sm text-slate-600 mb-4">Rejuvenate your Health</p>
-              <div className={`inline-block px-6 py-3 rounded-lg border-2 ${urgency.bg} ${urgency.color} font-bold text-lg`}>
-                {urgency.level}
-              </div>
-              <p className="text-slate-600 mt-2">{urgency.message}</p>
             </div>
+            <h1 className="text-3xl font-bold text-slate-800 mb-2">Ihre Healthspan-Analyse</h1>
+            <p className="text-sm text-slate-600 mb-4">Rejuvenate your Health</p>
+            <div className={`inline-block px-6 py-3 rounded-lg border-2 ${urgency.bg} ${urgency.color} font-bold text-lg`}>
+              {urgency.level}
+            </div>
+            <p className="text-slate-600 mt-2">{urgency.message}</p>
+          </div>
 
-            <div className="grid md:grid-cols-3 gap-6 mb-8">
-              <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
-                <h3 className="text-lg font-semibold mb-4 text-slate-800">Altersanalyse</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Chronologisch:</span>
-                    <span className="text-xl font-bold text-slate-800">{chronoAge} Jahre</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Biologisch:</span>
-                    <span className="text-2xl font-bold text-teal-600">{biologicalAge} Jahre</span>
-                  </div>
-                  <div className="flex justify-between items-center border-t border-teal-200 pt-2">
-                    <span className="text-slate-600">Unterschied:</span>
-                    <span className={`text-lg font-bold ${difference > 0 ? 'text-red-600' : 'text-teal-600'}`}>
-                      {difference > 0 ? `+${difference}` : difference} Jahre
-                    </span>
-                  </div>
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl border border-teal-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Altersanalyse</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Chronologisch:</span>
+                  <span className="text-xl font-bold text-slate-800">{chronoAge} Jahre</span>
                 </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
-                <h3 className="text-lg font-semibold mb-4 text-slate-800">Körperkomposition</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">BMI:</span>
-                    <span className="text-xl font-bold text-slate-800">{bmi}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Gewicht:</span>
-                    <span className="text-lg text-slate-700">{answers.weight || 'N/A'} kg</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Größe:</span>
-                    <span className="text-lg text-slate-700">{answers.height || 'N/A'} cm</span>
-                  </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Biologisch:</span>
+                  <span className="text-2xl font-bold text-teal-600">{biologicalAge} Jahre</span>
                 </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200">
-                <h3 className="text-lg font-semibold mb-4 text-slate-800">Healthspan-Score</h3>
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Positive Faktoren:</span>
-                    <span className="text-xl font-bold text-teal-600">{positiveFactors.length}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-slate-600">Risikofaktoren:</span>
-                    <span className="text-xl font-bold text-orange-600">{riskFactors.length}</span>
-                  </div>
+                <div className="flex justify-between items-center border-t border-teal-200 pt-2">
+                  <span className="text-slate-600">Unterschied:</span>
+                  <span className={`text-lg font-bold ${difference > 0 ? 'text-red-600' : 'text-teal-600'}`}>
+                    {difference > 0 ? `+${difference}` : difference} Jahre
+                  </span>
                 </div>
               </div>
             </div>
 
-            <div className="text-center space-y-4">
-              <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-                <div className="text-orange-800 font-semibold">⚡ Exklusiver Frühzugang</div>
-                <div className="text-orange-700 text-sm">
-                  {urgency.tier === 'elite' 
-                    ? "Schließen Sie sich 5% der Elite-Performer an" 
-                    : urgency.tier === 'intervention'
-                    ? "Prioritärer Zugang für dringende Fälle"
-                    : "Über 47.000 Menschen verbessern bereits ihre Healthspan"
-                  }
+            <div className="bg-gradient-to-br from-slate-50 to-slate-100 p-6 rounded-xl border border-slate-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Körperkomposition</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">BMI:</span>
+                  <span className="text-xl font-bold text-slate-800">{bmi}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Gewicht:</span>
+                  <span className="text-lg text-slate-700">{answers.weight || 'N/A'} kg</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Größe:</span>
+                  <span className="text-lg text-slate-700">{answers.height || 'N/A'} cm</span>
                 </div>
               </div>
-              
-              <button
-                onClick={() => window.open('https://lyvohealth.com/?page_id=189', '_blank')}
-                className={`w-full py-4 px-8 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
-                  urgency.tier === 'elite' 
-                    ? 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800' 
-                    : urgency.tier === 'intervention'
-                    ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800'
-                    : urgency.tier === 'good'
-                    ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
-                    : 'bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800'
-                }`}
-              >
+            </div>
+
+            <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200">
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">Healthspan-Score</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Positive Faktoren:</span>
+                  <span className="text-xl font-bold text-teal-600">{positiveFactors.length}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-slate-600">Risikofaktoren:</span>
+                  <span className="text-xl font-bold text-orange-600">{riskFactors.length}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center space-y-4">
+            <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+              <div className="text-orange-800 font-semibold">⚡ Exklusiver Frühzugang</div>
+              <div className="text-orange-700 text-sm">
                 {urgency.tier === 'elite' 
-                  ? '🌟 Elite-Programm beitreten - Vorteil maximieren' 
+                  ? "Schließen Sie sich 5% der Elite-Performer an" 
                   : urgency.tier === 'intervention'
-                  ? '🚨 Sofort-Intervention starten - Platz sichern'
-                  : urgency.tier === 'good'
-                  ? '💪 Premium-Programm starten - Potenzial ausschöpfen'
-                  : '⚡ Boost-Programm starten - Jetzt optimieren'
+                  ? "Prioritärer Zugang für dringende Fälle"
+                  : "Über 47.000 Menschen verbessern bereits ihre Healthspan"
                 }
-              </button>
-              
-              <div className="text-xs text-slate-500">
-                Wissenschaftlich fundiert • Keine Bindung • 30 Tage Geld-zurück-Garantie
               </div>
-              
-              <button
-                onClick={restart}
-                className="text-slate-600 hover:text-slate-800 text-sm underline"
-              >
-                Assessment wiederholen
-              </button>
             </div>
+            
+            <button
+              onClick={() => window.open('https://lyvohealth.com/?page_id=189', '_blank')}
+              className={`w-full py-4 px-8 rounded-xl font-bold text-lg transition-all transform hover:scale-105 shadow-lg ${
+                urgency.tier === 'elite' 
+                  ? 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800' 
+                  : urgency.tier === 'intervention'
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800'
+                  : urgency.tier === 'good'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-700 hover:to-blue-800'
+                  : 'bg-gradient-to-r from-orange-600 to-orange-700 text-white hover:from-orange-700 hover:to-orange-800'
+              }`}
+            >
+              {urgency.tier === 'elite' 
+                ? '🌟 Elite-Programm beitreten - Vorteil maximieren' 
+                : urgency.tier === 'intervention'
+                ? '🚨 Sofort-Intervention starten - Platz sichern'
+                : urgency.tier === 'good'
+                ? '💪 Premium-Programm starten - Potenzial ausschöpfen'
+                : '⚡ Boost-Programm starten - Jetzt optimieren'
+              }
+            </button>
+            
+            <div className="text-xs text-slate-500">
+              Wissenschaftlich fundiert • Keine Bindung • 30 Tage Geld-zurück-Garantie
+            </div>
+            
+            <button
+              onClick={restart}
+              className="text-slate-600 hover:text-slate-800 text-sm underline"
+            >
+              Assessment wiederholen
+            </button>
           </div>
         </div>
       </BlurOverlay>
@@ -1073,15 +1064,13 @@ const LyvoHealthApp = () => {
 
   if (showWaitlist) {
     return (
-      <div className="w-full min-h-screen p-6 bg-white">
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center">
-            <CheckCircle className="w-16 h-16 mx-auto mb-4 text-teal-500" />
-            <h2 className="text-2xl font-bold mb-4 text-slate-800">Programm-Platz gesichert!</h2>
-            <button onClick={restart} className="bg-slate-600 text-white py-3 px-6 rounded-lg">
-              Neues Assessment durchführen
-            </button>
-          </div>
+      <div className="max-w-2xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+        <div className="text-center">
+          <CheckCircle className="w-16 h-16 mx-auto mb-4 text-teal-500" />
+          <h2 className="text-2xl font-bold mb-4 text-slate-800">Programm-Platz gesichert!</h2>
+          <button onClick={restart} className="bg-slate-600 text-white py-3 px-6 rounded-lg">
+            Neues Assessment durchführen
+          </button>
         </div>
       </div>
     );
@@ -1091,119 +1080,117 @@ const LyvoHealthApp = () => {
   const allQuestionsAnswered = currentCategory.questions.every(q => answers[q.id]);
 
   return (
-    <div className="w-full min-h-screen p-6 bg-white">
-      <div className="max-w-3xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <div className="flex items-center mb-4">
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-1">
-                    <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
-                    <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-slate-800">LYVO</div>
-                    <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
-                  </div>
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <div className="mb-8">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <div className="flex items-center mb-4">
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-1">
+                  <div className="w-4 h-4 bg-teal-400 rounded-sm"></div>
+                  <div className="w-4 h-4 bg-slate-800 rounded-sm"></div>
                 </div>
-              </div>
-              <h1 id="healthspan-header" className="text-3xl font-bold text-slate-800">Healthspan Assessment</h1>
-              <p className="text-slate-600">Rejuvenate your Health</p>
-              <p className="text-sm text-slate-500">Wissenschaftliche Langlebigkeitsanalyse in 5 Minuten</p>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-slate-600">Schritt {currentStep + 1} von {questionCategories.length}</div>
-              <div className="text-xs text-teal-600">50.000+ abgeschlossen</div>
-            </div>
-          </div>
-          
-          <div className="w-full bg-slate-200 rounded-full h-3 mb-4">
-            <div 
-              className="bg-gradient-to-r from-teal-500 to-slate-700 h-3 rounded-full transition-all duration-500"
-              style={{ width: `${((currentStep + 1) / questionCategories.length) * 100}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="mb-8">
-          <div className="flex items-center mb-6 text-teal-600">
-            {currentCategory.icon}
-            <h2 className="text-2xl font-semibold ml-3 text-slate-800">{currentCategory.category}</h2>
-          </div>
-
-          <div className="space-y-8">
-            {currentCategory.questions.map((question) => (
-              <div key={question.id} className="space-y-3">
                 <div>
-                  <label className="block text-slate-800 font-semibold text-lg mb-1">
-                    {question.question}
-                  </label>
-                  {question.subtitle && (
-                    <p className="text-sm text-slate-500">{question.subtitle}</p>
-                  )}
+                  <div className="text-2xl font-bold text-slate-800">LYVO</div>
+                  <div className="text-sm text-teal-600 font-medium -mt-1">HEALTH</div>
                 </div>
-                
-                {question.type === "number" ? (
-                  <input
-                    type="number"
-                    min={question.min}
-                    max={question.max}
-                    value={answers[question.id] || ''}
-                    onChange={(e) => handleAnswer(question.id, e.target.value)}
-                    className="w-full p-4 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-lg"
-                    placeholder={question.id === 'height' ? 'z.B. 175' : question.id === 'weight' ? 'z.B. 70' : 'Geben Sie Ihr Alter ein'}
-                  />
-                ) : (
-                  <div className="space-y-2">
-                    {question.options.map((option) => (
-                      <button
-                        key={option}
-                        onClick={() => handleAnswer(question.id, option)}
-                        className={`w-full p-4 text-left border-2 rounded-xl transition-all ${
-                          answers[question.id] === option
-                            ? 'border-teal-500 bg-teal-50 text-teal-700'
-                            : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{option}</span>
-                          {answers[question.id] === option && (
-                            <CheckCircle className="w-5 h-5 text-teal-500" />
-                          )}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
-            ))}
+            </div>
+            <h1 className="text-3xl font-bold text-slate-800">Healthspan Assessment</h1>
+            <p className="text-slate-600">Rejuvenate your Health</p>
+            <p className="text-sm text-slate-500">Wissenschaftliche Langlebigkeitsanalyse in 5 Minuten</p>
           </div>
-        </div>
-
-        <div className="flex justify-between">
-          <button
-            onClick={prevStep}
-            disabled={currentStep === 0}
-            className="flex items-center px-6 py-3 text-slate-600 border-2 border-slate-300 rounded-xl hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
-          >
-            <ChevronLeft className="w-5 h-5 mr-2" />
-            Zurück
-          </button>
-          
-          <button
-            onClick={nextStep}
-            disabled={!allQuestionsAnswered}
-            className="flex items-center px-8 py-3 bg-gradient-to-r from-teal-600 to-slate-700 text-white rounded-xl hover:from-teal-700 hover:to-slate-800 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg transition-all transform hover:scale-105"
-          >
-            {currentStep === questionCategories.length - 1 ? 'Healthspan-Analyse starten' : 'Weiter'}
-            <ChevronRight className="w-5 h-5 ml-2" />
-          </button>
+          <div className="text-right">
+            <div className="text-sm text-slate-600">Schritt {currentStep + 1} von {questionCategories.length}</div>
+            <div className="text-xs text-teal-600">50.000+ abgeschlossen</div>
+          </div>
         </div>
         
-        <div className="mt-6 text-center text-xs text-slate-500 pb-8">
-          🔒 Ihre Daten sind verschlüsselt und werden niemals geteilt
+        <div className="w-full bg-slate-200 rounded-full h-3 mb-4">
+          <div 
+            className="bg-gradient-to-r from-teal-500 to-slate-700 h-3 rounded-full transition-all duration-500"
+            style={{ width: `${((currentStep + 1) / questionCategories.length) * 100}%` }}
+          ></div>
         </div>
+      </div>
+
+      <div className="mb-8">
+        <div className="flex items-center mb-6 text-teal-600">
+          {currentCategory.icon}
+          <h2 className="text-2xl font-semibold ml-3 text-slate-800">{currentCategory.category}</h2>
+        </div>
+
+        <div className="space-y-8">
+          {currentCategory.questions.map((question) => (
+            <div key={question.id} className="space-y-3">
+              <div>
+                <label className="block text-slate-800 font-semibold text-lg mb-1">
+                  {question.question}
+                </label>
+                {question.subtitle && (
+                  <p className="text-sm text-slate-500">{question.subtitle}</p>
+                )}
+              </div>
+              
+              {question.type === "number" ? (
+                <input
+                  type="number"
+                  min={question.min}
+                  max={question.max}
+                  value={answers[question.id] || ''}
+                  onChange={(e) => handleAnswer(question.id, e.target.value)}
+                  className="w-full p-4 border-2 border-slate-300 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-lg"
+                  placeholder={question.id === 'height' ? 'z.B. 175' : question.id === 'weight' ? 'z.B. 70' : 'Geben Sie Ihr Alter ein'}
+                />
+              ) : (
+                <div className="space-y-2">
+                  {question.options.map((option) => (
+                    <button
+                      key={option}
+                      onClick={() => handleAnswer(question.id, option)}
+                      className={`w-full p-4 text-left border-2 rounded-xl transition-all ${
+                        answers[question.id] === option
+                          ? 'border-teal-500 bg-teal-50 text-teal-700'
+                          : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span>{option}</span>
+                        {answers[question.id] === option && (
+                          <CheckCircle className="w-5 h-5 text-teal-500" />
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex justify-between">
+        <button
+          onClick={prevStep}
+          disabled={currentStep === 0}
+          className="flex items-center px-6 py-3 text-slate-600 border-2 border-slate-300 rounded-xl hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+        >
+          <ChevronLeft className="w-5 h-5 mr-2" />
+          Zurück
+        </button>
+        
+        <button
+          onClick={nextStep}
+          disabled={!allQuestionsAnswered}
+          className="flex items-center px-8 py-3 bg-gradient-to-r from-teal-600 to-slate-700 text-white rounded-xl hover:from-teal-700 hover:to-slate-800 disabled:opacity-50 disabled:cursor-not-allowed font-semibold text-lg transition-all transform hover:scale-105"
+        >
+          {currentStep === questionCategories.length - 1 ? 'Healthspan-Analyse starten' : 'Weiter'}
+          <ChevronRight className="w-5 h-5 ml-2" />
+        </button>
+      </div>
+      
+      <div className="mt-6 text-center text-xs text-slate-500">
+        🔒 Ihre Daten sind verschlüsselt und werden niemals geteilt
       </div>
     </div>
   );
