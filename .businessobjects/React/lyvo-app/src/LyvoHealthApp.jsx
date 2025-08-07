@@ -10,6 +10,7 @@ const BlurOverlay = ({ children, onComplete }) => {
   const isFormValid = email.trim().length > 0 && email.includes('@') && email.includes('.') && agreedToTerms;
 
   const handleSubmit = (e) => {
+    
     if (e && e.preventDefault) {
       e.preventDefault();
     }
